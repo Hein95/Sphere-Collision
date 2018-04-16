@@ -1,0 +1,55 @@
+class Sphere {
+    constructor(x,y,z,r,xvel,yvel,zvel,mesh){
+        this.x = x;
+        this.y = y;
+        this.z = z;
+        this.r = r;
+        //this.bounce_factor = bounce_factor;
+        this.xvel = xvel;
+        this.yvel = yvel;
+        this.zvel = zvel;
+        this.mesh = mesh;
+        this.setpos(x,y,z);
+        this.update();
+    }
+    setpos(x,y,z){
+        this.x =x;
+        this.y = y;
+        this.z = z;
+        this.mesh.position.x = x;
+        this.mesh.position.y = y;
+        this.mesh.position.z = z;
+    }
+
+
+    update(){
+        this.setpos(this.x + this.xvel,this.y + this.yvel,this.z + this.zvel)
+    }
+
+    check_walls(front,back,bot,top,left,right){
+        if(this.z +this.r >= front){this.zvel *=-1};
+        if(this.z -this.r<= back){this.zvel *=-1};
+        if(this.y -this.r<= bot+1){
+            this.yvel *=-1
+            this.setpos(this.x,BOT+this.r,this.z);
+        };
+        if(this.y +this.r>= top){this.yvel *=-1};
+        if(this.x+this.r >= right){this.xvel *=-1};
+        if(this.x -this.r <= left){this.xvel *=-1};
+
+    }
+    compute_normal(sphere2){
+        var pt = vec3(this.x,this.y,this.z);
+        var collision_pt = vec3(sphere2.x,sphere2.y,sphere2.y);
+        //var point = vec3(this,x,this.y,this.z);
+
+        var normal = normalize(subtract(collision_pt,pt));
+        return normal;}
+
+    }
+
+
+
+
+
+    //Checks for wall boundaries and applies basic hard coded responses
