@@ -1,0 +1,416 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <title>Sphere Collision</title>
+  <meta charset="utf-8">
+</head>
+<body style="margin: 0;">
+
+  <script src="js/three.min.js"></script>
+  <script src="js/OrbitControls.js"></script>
+  <script src ="js/Sphere.js"></script>
+  <script src = "js/MV.js"></script>
+  <script src = "js/dat-gui.js"></script>
+
+  <script>
+    // Set up the scene, camera, and renderer as global variables.
+    var scene, camera, renderer;
+    var controls;
+    var spotLight;
+    var objs = [];
+    var gui = new dat.GUI();
+
+    init();
+    animate();
+    var RIGHT = 300;
+    var LEFT = -300;
+    var BOT = -300;
+    var BACK = -300;
+    var FRONT = 300;
+    var TOP = 300;
+
+
+    // Sets up the scene.
+    function init(){
+
+      // Create the scene and set the scene size.
+        scene = new THREE.Scene();
+
+        var WIDTH = RIGHT;
+        var HEIGHT = BOT;
+
+        // Create a renderer and add it to the DOM.
+        renderer = new THREE.WebGLRenderer();
+        renderer.setSize(WIDTH, HEIGHT);
+        renderer.shadowMapEnabled = true;
+        renderer.shadowMapySoft = true;
+        document.body.appendChild(renderer.domElement);
+
+        // Create a camera, zoom it out from the model a bit, and add it to the scene.
+        camera = new THREE.PerspectiveCamera(90,WIDTH/HEIGHT,1,20000);
+        camera.position.set(600,600,600);
+        scene.add(camera);
+        var btn = {add: function(){add_sphere();renderer.render(scene,camera)}};
+        gui.add(btn,'add');
+        displaygui();
+
+        // Create an event listener that resizes the renderer with the browser window.
+        window.addEventListener('resize', function() {
+          var WIDTH = window.innerWidth,
+              HEIGHT = window.innerHeight;
+              renderer.setSize(WIDTH, HEIGHT);
+              camera.aspect = WIDTH / HEIGHT;
+              camera.updateProjectionMatrix();
+        });
+
+        // Set the background color of the scene.
+        renderer.setClearColorHex(0x333F47, .9);
+
+        // Create a light, set its position, and add it to the scene.
+        spotLight = new THREE.SpotLight(0xffffff,3);
+        spotLight.position.set(10,800,10);
+        spotLight.castShadow = true;
+        var spotLight2 = new THREE.SpotLight(0xfff0ff, 2);
+        spotLight2.position.set(0,800,0);
+        spotLight2.castShadow = true;
+        scene.add(spotLight2);
+        //spotLight.shadow.camera.near = 0.2;
+        //spotLight.shadowCamera.far = 300;
+        //scene.add(spotLight);
+
+        var cylgeometry = new THREE.CylinderGeometry( 1, 35, 100, 52 );
+        var cylmaterial = new THREE.MeshLambertMaterial( {color: 0xffffaa}  );
+        var cylinder = new THREE.Mesh( cylgeometry, cylmaterial );
+        cylinder.translateX(245);
+        cylinder.translateY(-250);
+        cylinder.translateZ(-245);
+        cylinder.castShadow = true;
+        cylinder.receiveShadow = true;
+        //scene.add( cylinder );
+
+
+        function displaygui(){
+
+            height : 5 * 31 -1;
+
+
+
+        }
+        function CustomSinCurve( scale ) {
+
+            THREE.Curve.call( this );
+
+            this.scale = ( scale === undefined ) ? 1 : scale;
+
+        }
+
+        CustomSinCurve.prototype = Object.create( THREE.Curve.prototype );
+        CustomSinCurve.prototype.constructor = CustomSinCurve;
+
+        CustomSinCurve.prototype.getPoint = function ( t ) {
+
+            var tx = t * 3 - 1.5;
+            var ty = Math.sin( 2 * Math.PI * t );
+            var tz = 0;
+
+            return new THREE.Vector3( tx, ty, tz ).multiplyScalar( this.scale );
+
+        };
+        var axis = new THREE.AxisHelper(200);
+        axis.translateX(-295);
+        axis.translateY(-200);
+        axis.translateZ(-295);
+        scene.add(axis);
+        var Grid = new THREE.GridHelper(600, 30);
+        Grid.translateY(-300);
+        scene.add(Grid);
+
+        var path = new CustomSinCurve( 60 );
+        var tubegeometry = new THREE.TubeGeometry( path, 10, 8, 100, false );
+        var tubematerial = new THREE.MeshPhongMaterial( { color: 0xaaffaa } );
+        var tube = new THREE.Mesh( tubegeometry, tubematerial );
+        var tube2 = new THREE.Mesh( tubegeometry, tubematerial );
+        var tube3 = new THREE.Mesh( tubegeometry, tubematerial );
+        tube.castShadow = true;
+        tube.receiveShadow = true;
+        tube2.castShadow = true;
+        tube2.receiveShadow = true;
+        tube3.castShadow = true;
+        tube3.receiveShadow = true;
+        tube.translateX(245);
+        tube.translateY(205);
+        tube.translateZ(200);
+        tube.rotateX(3.14159);
+        tube2.translateX(245);
+        tube2.translateY(205);
+        tube2.translateZ(0);
+        tube2.rotateX(3.14159);
+        tube3.translateX(245);
+        tube3.translateY(205);
+        tube3.translateZ(-245);
+        tube3.rotateX(3.14159);
+        scene.add( tube );
+        scene.add(tube2);
+        scene.add(tube3);
+
+
+      // Load in the mesh and add it to the scene.
+
+
+      // Add OrbitControls so that we can pan around with the mouse.
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      var geometry = new THREE.SphereGeometry( 30, 20, 32 );
+      var material1 = new THREE.MeshPhongMaterial({ vertexColors: THREE.FaceColors});
+
+      var faces = geometry.faces;
+      console.log(faces.length);
+      material1.vertexColors = THREE.FaceColors;
+
+      for(var i = 0 ; i < faces.length; i++){
+          var face = faces[i];
+          face.color.setRGB(Math.random()*255,Math.random()*255,Math.random()*255);
+      }
+
+      var cubeGeometry = new THREE.CubeGeometry( 10, 300, 50 );
+      var cubeMaterial = new THREE.MeshPhongMaterial( {color: 0xff00ff} );
+      var cube = new THREE.Mesh( cubeGeometry, cubeMaterial );
+      cube.receiveShadow = true;
+      cube.castShadow    = true;
+
+      cube.translateX(-270);
+      cube.translateY(-150);
+      cube.translateZ(-270);
+      scene.add( cube );
+      geometry.elementsNeedUpdate = true;
+
+      spheremesh= new THREE.Mesh( geometry, material1 );
+      //spheremesh.alpha = 0;
+      spheremesh.castShadow = true;
+      spheremesh1 = new THREE.Mesh( geometry, material1 );
+      spheremesh1.castShadow = true;
+      spheremesh2 = new THREE.Mesh( geometry, material1 );
+      spheremesh2.castShadow = true;
+      spheremesh3 = new THREE.Mesh( geometry, material1 );
+      spheremesh3.material.color.setHex( 0x000000);
+      //spheremesh3.geometry.radius = 100;
+      var sphere = new Sphere(spheremesh.geometry.x,spheremesh.geometry.y,spheremesh.geometry.z,spheremesh.geometry.radius,20,10,8,spheremesh);
+      var sphere1 = new Sphere(spheremesh1.geometry.x,spheremesh1.geometry.y,spheremesh1.geometry.z,spheremesh1.geometry.radius,0,0,0,spheremesh1);
+      var sphere2 = new Sphere(spheremesh2.geometry.x,spheremesh2.geometry.y,spheremesh2.geometry.z,spheremesh2.geometry.radius,0,0,0,spheremesh2);
+      var sphere3 = new Sphere(spheremesh3.geometry.x,spheremesh3.geometry.y,spheremesh3.geometry.z,spheremesh3.geometry.radius,0,0,0,spheremesh3);
+
+        function add_sphere(){
+            var geo = new THREE.SphereGeometry( 30, 20, 32 );
+            var mat= new THREE.MeshLambertMaterial({ vertexColors: THREE.FaceColors});
+            spheremesh = new THREE.Mesh(geo,mat);
+            var s = new Sphere(0, 300, 0, spheremesh.geometry.radius,Math.random()*100,Math.random()*100,Math.random()*100,spheremesh);
+            s.setpos(Math.random()*250,Math.random()*250,Math.random()*250);
+            spheremesh.material.color.setHex(0xff0000);
+            s.mesh.castShadow = true;
+            s.mesh.receiveShadow = true;
+            scene.add(s.mesh);
+            objs.push(s);
+
+        }
+      sphere.setpos(20,300,100);
+      sphere1.setpos(0,300,201);
+      sphere2.setpos(2,300,0);
+      sphere3.setpos(144, 300, 0);
+      objs.push(sphere1,sphere2,sphere, sphere3);
+      //console.log(sphere.geometry.radius,sphere.position)
+        var planeGeo = new THREE.PlaneGeometry( 600, 600, 1 );
+
+
+        var material = new THREE.MeshPhongMaterial((0xffffff));
+
+        var plane = new THREE.Mesh( planeGeo, material );
+        plane.castShadow = true;
+        plane.receiveShadow = true;
+        var plane1 = new THREE.Mesh( planeGeo, material );
+        plane1.castShadow = true;
+        plane1.receiveShadow = true;
+        var plane2 = new THREE.Mesh( planeGeo, material );
+        plane2.castShadow = true;
+        plane2.receiveShadow = true;
+        var plane3 = new THREE.Mesh( planeGeo, material );
+        plane3.castShadow = true;
+        plane3.receiveShadow = true;
+        var plane4 = new THREE.Mesh( planeGeo, material );
+        plane4.castShadow = true;
+        plane4.castShadow = true;
+        plane4.receiveShadow = true;
+        plane.material.color.setHex( 0xffffff );
+        plane.geometry.x = RIGHT;
+        plane.geometry.y = BOT;
+        plane.geometry.z = BACK;
+
+        //-----------------------
+        //bottom plane
+        plane.translateX(0);
+        plane.translateY(-300);
+        plane.rotateX(4.71239);
+        //plane.scale(0,2,0);
+        //------------------------
+        //back plane
+        plane1.rotateY(0);
+        plane1.translateZ(-300);
+
+
+        //-------------
+        //right plane
+
+        plane2.translateX(300);
+        plane2.rotateY(4.71239);
+
+        //-----------
+        //left plane
+        plane3.translateX(-300);
+        plane3.rotateY(1.5708);
+
+        //-------------
+        //front plane
+        plane4.translateZ(300);
+        plane4.rotateY(3.14159);
+
+
+
+      scene.add(sphere.mesh);
+      scene.add(sphere1.mesh);
+      scene.add(sphere2.mesh);
+      scene.add(sphere3.mesh);
+      scene.add( plane );
+      scene.add( plane1 );
+      scene.add( plane2 );
+      scene.add( plane3 );
+      scene.add( plane4 );
+    }
+
+
+    // Renders the scene and updates the render as needed.
+    function animate() {
+
+        requestAnimationFrame(animate);
+        var gravity = -0.9;
+        for(var i = 0; i < objs.length; i++){
+            var sphere1 = objs[i];
+            sphere1.check_walls(FRONT,BACK,BOT,TOP,LEFT,RIGHT);
+            if(sphere1.y - sphere1.r > -300) {
+                sphere1.yvel += gravity;
+
+            }
+            sphere1.update();
+            for(var j = i+1; j < objs.length; j++) {
+                var sphere2 = objs[j];
+                if (collision(sphere1, sphere2) && (sphere1 !== sphere2) ) {
+
+                    var net_xvel =  0.3*Math.abs(sphere1.xvel - sphere2.xvel);
+                    var net_yvel =  0.3*Math.abs(sphere1.yvel - sphere2.yvel);
+                    var net_zvel =  0.3*Math.abs(sphere1.zvel - sphere2.zvel);
+
+                    var tmpx = sphere2.xvel;
+                    var tmpy = sphere2.yvel;
+                    var tmpz = sphere2.zvel;
+
+                    if(sphere2.xvel >= 0){
+                        //sphere2.x =  Math.abs(sphere1.x) + sphere1.r;
+                        sphere2.xvel = (0.1*sphere1.xvel - net_xvel);
+
+                    } else{
+                        //sphere2.x =  Math.abs(sphere1.x) - sphere1.r;
+                        sphere2.xvel = (0.1*sphere1.xvel + net_xvel);
+
+                    }
+                    if(sphere2.yvel >= 0){
+                        //sphere2.y =  Math.abs(sphere1.y) + sphere1.r;
+                        sphere2.yvel = (sphere1.yvel - net_yvel);
+
+                    } else{
+                        //sphere2.y =  Math.abs(sphere1.y) - sphere1.r;
+                        sphere2.yvel = (sphere1.yvel + net_yvel);
+
+                    }
+                    if(sphere2.zvel >= 0){
+                        //sphere2.z =  Math.abs(sphere1.z) + sphere1.r;
+                        sphere2.zvel = (sphere1.zvel - net_zvel);
+
+                    } else{
+                        //sphere2.z =  Math.abs(sphere1.z) - sphere1.r;
+                        sphere2.zvel = (sphere1.zvel + net_zvel);
+                    }
+
+                    if(sphere1.xvel >= 0){
+                        //sphere1.x =  Math.abs(sphere2.x) + sphere1.r;
+                        sphere1.xvel = (tmpx - net_xvel);
+
+                    } else{
+                        //sphere1.x =  Math.abs(sphere2.x) - sphere1.r;
+                        sphere1.xvel = (tmpx + net_xvel);
+                    }
+                    if(sphere1.yvel >= 0){
+                        //sphere1.y =  Math.abs(sphere2.y) + sphere1.r;
+                        sphere1.yvel = (tmpy - net_yvel);
+                    } else{
+                        //sphere1.y =  Math.abs(sphere2.y) - sphere1.r;
+                        sphere1.yvel = (tmpy + net_yvel);
+                    }
+                    if(sphere1.zvel >= 0){
+                        //sphere1.y =  Math.abs(sphere2.z) + sphere1.r;
+                        sphere1.zvel = (tmpz - net_zvel);
+                    } else{
+                        //sphere1.y =  Math.abs(sphere2.z) - sphere1.r;
+                        sphere1.zvel =(tmpz + net_zvel);
+                    }
+
+                    if(sphere1.r + sphere2.r == Math.abs(sphere1.z + sphere2.z)){
+                        sphere1.xvel += net_xvel;
+                        sphere1.yvel += net_yvel;
+                        sphere1.zvel += net_zvel;
+                        sphere2.xvel += net_xvel;
+                        sphere2.yvel += -net_yvel;
+                        sphere2.zvel += -net_zvel;
+
+                    }
+                    sphere1.update();
+                    sphere2.update();
+
+
+                }
+
+
+            }
+
+        }
+        // Render the scene.
+        renderer.render(scene, camera);
+        controls.update();
+
+    }
+
+
+    function collision (s1,s2) {
+        var a;
+        var x1 = s1.x + s1.xvel;
+        var y1 = s1.y+ s1.yvel;
+        var z1 = s1.z+ s1.zvel;
+        var r1 = s1.r;
+
+        var x2 = s2.x + s2.xvel;
+        var y2 = s2.y+ s2.yvel;
+        var z2 = s2.z + s2.zvel;
+        var r2 = s2.r;
+
+        a = r1 + r2;
+        var x = x1 - x2;
+        var y = y1 - y2;
+        var z = z1 - z2;
+
+        if ( a >= Math.sqrt( (x*x) + (y*y) + (z*z) )) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+  </script>
+
+</body>
+</html>
